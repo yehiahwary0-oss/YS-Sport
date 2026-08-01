@@ -1,0 +1,95 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-navy-900 text-zinc-100 antialiased;
+  }
+
+  ::selection {
+    @apply bg-green-500/30;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-zinc-700 rounded-full;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-zinc-600;
+  }
+
+  /* RTL overrides — Arabic text rendering */
+  [dir="rtl"] {
+    text-align: right;
+  }
+
+  [dir="rtl"] .space-x-reverse > :not([hidden]) ~ :not([hidden]) {
+    --tw-space-x-reverse: 1;
+  }
+}
+
+@layer components {
+  .input-base {
+    @apply w-full rounded-lg border border-zinc-700 bg-navy-800 px-4 py-2.5 text-sm text-zinc-100
+           placeholder:text-zinc-500
+           focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500/50
+           disabled:opacity-50 disabled:cursor-not-allowed
+           transition-colors;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-green-500 px-4 py-2.5
+           text-sm font-semibold text-navy-900
+           hover:bg-green-400 active:bg-green-600
+           disabled:opacity-50 disabled:cursor-not-allowed
+           transition-colors;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-zinc-700 bg-navy-800 px-4 py-2.5
+           text-sm font-semibold text-zinc-100
+           hover:bg-navy-700 hover:border-zinc-600
+           disabled:opacity-50 disabled:cursor-not-allowed
+           transition-colors;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5
+           text-sm font-semibold text-zinc-400
+           hover:bg-navy-800 hover:text-zinc-100
+           disabled:opacity-50 disabled:cursor-not-allowed
+           transition-colors;
+  }
+
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-red-500/10 border border-red-500/30 px-4 py-2.5
+           text-sm font-semibold text-red-400
+           hover:bg-red-500/20
+           disabled:opacity-50 disabled:cursor-not-allowed
+           transition-colors;
+  }
+
+  .card {
+    @apply rounded-2xl border border-zinc-800 bg-navy-800/50 backdrop-blur-sm;
+  }
+
+  .label-text {
+    @apply mb-1.5 block text-sm font-medium text-zinc-300;
+  }
+
+  .error-text {
+    @apply mt-1.5 text-xs text-red-400;
+  }
+}
