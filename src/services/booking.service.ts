@@ -1,4 +1,5 @@
 import { api } from '@/lib/api'
+import { toPaginated } from '@/lib/pagination'
 import type { Booking, PaginatedResponse } from '@/types'
 
 export const bookingService = {
@@ -6,7 +7,7 @@ export const bookingService = {
   // Athlete
   async listAthlete(status?: string, page = 1): Promise<PaginatedResponse<Booking>> {
     const { data } = await api.get('/athlete/bookings', { params: { status, page } })
-    return data as PaginatedResponse<Booking>
+    return toPaginated<Booking>(data.data)
   },
 
   async getAthlete(uuid: string): Promise<Booking> {
@@ -24,7 +25,7 @@ export const bookingService = {
   // Coach
   async listCoach(status?: string, page = 1): Promise<PaginatedResponse<Booking>> {
     const { data } = await api.get('/coach/bookings', { params: { status, page } })
-    return data as PaginatedResponse<Booking>
+    return toPaginated<Booking>(data.data)
   },
 
   async getCoach(uuid: string): Promise<Booking> {

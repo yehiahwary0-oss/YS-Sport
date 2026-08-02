@@ -42,7 +42,7 @@ export default function MarketplacePage() {
   }
 
   return (
-    <div className="min-h-screen bg-navy-900">
+    <div id="main-content" className="min-h-screen bg-navy-900">
       <PublicNavbar />
 
       {/* Hero search */}

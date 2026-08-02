@@ -34,10 +34,6 @@ export const packageService = {
     return data.data as CoachPackage
   },
 
-  async reorder(orderedUuids: string[]): Promise<void> {
-    await api.put('/coach/packages/reorder', { order: orderedUuids })
-  },
-
   async remove(uuid: string): Promise<void> {
     await api.delete(`/coach/packages/${uuid}`)
   },

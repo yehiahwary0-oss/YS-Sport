@@ -31,6 +31,13 @@ export function useConfirmPaymentSuccess() {
   })
 }
 
+export function useConfirmPaymentCancelled() {
+  return useMutation({
+    mutationFn: (bookingUuid: string) => paymentService.confirmCancelled(bookingUuid),
+    onError: (err) => toast.error(getApiError(err)),
+  })
+}
+
 export function useMarkManualPaid() {
   const queryClient = useQueryClient()
   return useMutation({

@@ -98,8 +98,11 @@ export function AchievementSection({ achievements }: AchievementSectionProps) {
 
   return (
     <section aria-labelledby="achievements-heading">
-      <h2 id="achievements-heading" className="mb-4 text-lg font-semibold text-zinc-100">
+      <h2 id="achievements-heading" className="mb-4 flex flex-wrap items-center gap-2 text-lg font-semibold text-zinc-100">
         {t('title')}
+        <span className="rounded-full border border-emerald-400/30 bg-emerald-400/10 px-2.5 py-0.5 text-xs font-medium text-emerald-400">
+          {t('unlockedCount', { count: achievements.length })}
+        </span>
       </h2>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {achievements.map((a) => (

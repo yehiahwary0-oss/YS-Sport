@@ -2,21 +2,23 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { Send, Wifi, WifiOff } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { useConversationDetail, useSendMessage } from '@/hooks/useConversation'
-import { usePusherConversation } from '@/hooks/usePusherChannel'
+import { usePusherConversation, usePusherConnectionState } from '@/hooks/usePusherChannel'
 import { useAuthStore } from '@/store/auth.store'
 import { timeAgo, cn } from '@/lib/utils'
 import { Spinner } from '@/components/ui/Spinner'
 
-const PUSHER_ENABLED = !!process.env.NEXT_PUBLIC_PUSHER_KEY
-
 export function ChatPanel({ conversationUuid }: { conversationUuid: string | undefined }) {
+  const t = useTranslations('chat')
   const user = useAuthStore((s) => s.user)
 
   // Real-time updates via WebSocket when configured;
   // react-query's refetchInterval below acts as a safety-net fallback
   // (slowed down since Pusher is now the primary delivery mechanism).
   usePusherConversation(conversationUuid)
+  const connectionState = usePusherConnectionState()
+  const isPusherConfigured = !!process.env.NEXT_PUBLIC_PUSHER_KEY
 
   const { data, isLoading } = useConversationDetail(conversationUuid)
   const sendMessage = useSendMessage()
@@ -52,13 +54,22 @@ export function ChatPanel({ conversationUuid }: { conversationUuid: string | und
   return (
     <div className="card flex h-96 flex-col">
       <div className="flex items-center justify-end gap-1.5 border-b border-zinc-800 px-4 py-2">
-        {PUSHER_ENABLED ? (
+        {isPusherConfigured && connectionState === 'connected' ? (
           <span className="flex items-center gap-1 text-2xs text-green-400">
-            <Wifi className="h-3 w-3" /> Live
+            <Wifi className="h-3 w-3" /> {t('connection.live')}
+          </span>
+        ) : isPusherConfigured &&
+          (connectionState === 'connecting' || connectionState === 'initialized') ? (
+          <span className="flex items-center gap-1 text-2xs text-yellow-400">
+            <Wifi className="h-3 w-3" /> {t('connection.connecting')}
+          </span>
+        ) : isPusherConfigured ? (
+          <span className="flex items-center gap-1 text-2xs text-red-400">
+            <WifiOff className="h-3 w-3" /> {t('connection.offline')}
           </span>
         ) : (
           <span className="flex items-center gap-1 text-2xs text-zinc-500">
-            <WifiOff className="h-3 w-3" /> Polling
+            <WifiOff className="h-3 w-3" /> {t('connection.polling')}
           </span>
         )}
       </div>
@@ -94,7 +105,7 @@ export function ChatPanel({ conversationUuid }: { conversationUuid: string | und
           value={text}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-          placeholder="Type a message..."
+          placeholder={t('inputPlaceholder')}
           className="flex-1 rounded-lg bg-navy-700 px-3.5 py-2 text-sm text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:ring-1 focus:ring-green-500/50"
         />
         <button

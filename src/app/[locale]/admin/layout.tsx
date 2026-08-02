@@ -1,7 +1,7 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
-import { LayoutDashboard, ShieldCheck, DollarSign, Users, Calendar, Star, Medal, Tag, Trophy, Activity } from 'lucide-react'
+import { LayoutDashboard, ShieldCheck, DollarSign, Banknote, Users, Calendar, Star, Medal, Tag, Trophy, Activity } from 'lucide-react'
 import { RoleGuard } from '@/components/shared/RoleGuard'
 import { DashboardSidebar, type NavItem } from '@/components/layout/DashboardSidebar'
 import { DashboardNavbar } from '@/components/layout/DashboardNavbar'
@@ -17,6 +17,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     '/admin/dashboard': t('dashboard'),
     '/admin/coaches': t('coachVerification'),
     '/admin/payments': t('payments'),
+    '/admin/payouts': t('payouts'),
     '/admin/users': t('users'),
     '/admin/bookings': t('bookings'),
     '/admin/reviews': t('reviews'),
@@ -31,7 +32,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const navItems: NavItem[] = [
     { label: t('dashboard'), href: '/admin/dashboard', icon: LayoutDashboard },
     { label: t('coachVerification'), href: '/admin/coaches', icon: ShieldCheck, badge: metrics?.coaches.pending_verification },
-    { label: t('payments'), href: '/admin/payments', icon: DollarSign },
+    { label: t('payments'), href: '/admin/payments', icon: DollarSign, badge: Number(metrics?.revenue.pending) > 0 ? 1 : undefined },
+    { label: t('payouts'), href: '/admin/payouts', icon: Banknote, badge: metrics?.payouts.pending },
     { label: t('users'), href: '/admin/users', icon: Users },
     { label: t('bookings'), href: '/admin/bookings', icon: Calendar },
     { label: t('reviews'), href: '/admin/reviews', icon: Star },
@@ -47,7 +49,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <DashboardSidebar items={navItems} />
         <div className="flex-1">
           <DashboardNavbar title={title} mobileNavItems={navItems} />
-          <main className="p-4 lg:p-8">{children}</main>
+          <main id="main-content" className="p-4 lg:p-8">{children}</main>
         </div>
       </div>
     </RoleGuard>

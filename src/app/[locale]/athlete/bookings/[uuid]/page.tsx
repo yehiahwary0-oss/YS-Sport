@@ -18,6 +18,7 @@ import { ErrorState } from '@/components/ui/ErrorState'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { ChatPanel } from '@/components/shared/ChatPanel'
 import { useAthleteBookingDetail, useCancelBookingAthlete } from '@/hooks/useBookings'
+import { useBookingPayment } from '@/hooks/useBookingPayment'
 import { useFindBookingConversation } from '@/hooks/useConversation'
 import { useCreateCheckout, useConfirmPaymentSuccess, useMarkManualPaid, useValidatePromoCode } from '@/hooks/usePayments'
 import { reviewService } from '@/services/review.service'
@@ -40,6 +41,7 @@ export default function AthleteBookingDetailPage() {
   const createCheckout = useCreateCheckout()
   const confirmPaymentSuccess = useConfirmPaymentSuccess()
   const markManualPaid = useMarkManualPaid()
+  useBookingPayment(uuid, !!booking?.payment && booking.payment.status === 'pending')
 
   const [cancelModalOpen, setCancelModalOpen] = useState(false)
   const [reviewModalOpen, setReviewModalOpen] = useState(false)
@@ -143,7 +145,12 @@ export default function AthleteBookingDetailPage() {
                 <Button
                   onClick={() => {
                     createCheckout.mutate(
-                      { bookingUuid: uuid, returnUrl: `${window.location.origin}/athlete/bookings/${uuid}`, promoCode: promoValidation?.code },
+                      {
+                        bookingUuid: uuid,
+                        returnUrl: `${window.location.origin}/athlete/bookings/${uuid}/payment/success`,
+                        cancelUrl: `${window.location.origin}/athlete/bookings/${uuid}/payment/cancelled`,
+                        promoCode: promoValidation?.code,
+                      },
                       {
                         onSuccess: (session) => {
                           window.open(session.checkout_url, '_blank')

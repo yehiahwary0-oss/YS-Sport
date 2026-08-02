@@ -1,4 +1,5 @@
 import { api } from '@/lib/api'
+import { toPaginated } from '@/lib/pagination'
 import type { AppNotification, PaginatedResponse } from '@/types'
 
 export interface NotificationFilterParams {
@@ -11,7 +12,7 @@ export const notificationService = {
 
   async list(params?: NotificationFilterParams): Promise<PaginatedResponse<AppNotification>> {
     const { data } = await api.get('/notifications', { params })
-    return data as PaginatedResponse<AppNotification>
+    return toPaginated<AppNotification>(data.data)
   },
 
   async unreadCount(): Promise<number> {

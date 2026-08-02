@@ -16,7 +16,8 @@ import {
   useGrantAchievement,
 } from '@/hooks/useAdmin'
 import { useSports } from '@/hooks/useMarketplace'
-import type { AchievementDefinition, AchievementCriteria, CriteriaType } from '@/types'
+import type { AchievementDefinition, CriteriaType } from '@/types'
+import type { AchievementFormData } from '@/services/admin.service'
 import { getApiError } from '@/lib/api'
 
 const criteriaTypes: CriteriaType[] = ['session_count', 'level_reached', 'xp_threshold', 'sport_count', 'admin_granted']
@@ -117,7 +118,7 @@ export default function AdminAchievementsPage() {
 
   const handleAdd = () => {
     const payload = buildPayload(form)
-    createAchievement.mutate(payload as any, { onSuccess: resetAdd })
+    createAchievement.mutate(payload, { onSuccess: resetAdd })
   }
 
   const handleEdit = (a: AchievementDefinition) => {
@@ -128,7 +129,7 @@ export default function AdminAchievementsPage() {
   const handleUpdate = () => {
     if (!editing) return
     const payload = buildPayload(form)
-    updateAchievement.mutate({ id: editing.id, ...payload } as any, { onSuccess: resetEdit })
+    updateAchievement.mutate({ id: editing.id, ...payload }, { onSuccess: resetEdit })
   }
 
   if (isLoading) {
@@ -382,9 +383,11 @@ export default function AdminAchievementsPage() {
   )
 }
 
-function buildPayload(form: FormState) {
+function buildPayload(form: FormState): AchievementFormData {
   const type = form.criteria_type
-  const criteria: any = { type }
+  // The API's `criteria` field carries only operator/value — the backend
+  // injects `type` itself from `criteria_type` (AchievementController:110).
+  const criteria: NonNullable<AchievementFormData['criteria']> = {}
   if (criteriaNeedsOperator(type)) criteria.operator = form.criteria_operator
   if (criteriaNeedsValue(type)) criteria.value = Number(form.criteria_value)
   return {
@@ -394,6 +397,7 @@ function buildPayload(form: FormState) {
     icon: form.icon || null,
     category: form.category || null,
     sport_id: criteriaNeedsSport(type) ? (form.sport_id === 'null' ? null : form.sport_id) : null,
+    criteria_type: type,
     criteria,
     xp_reward: Number(form.xp_reward),
     sort_order: Number(form.sort_order),

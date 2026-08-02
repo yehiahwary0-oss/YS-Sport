@@ -1,5 +1,6 @@
 import { api } from '@/lib/api'
-import type { ApiResponse, CheckoutSession, Payment, PaginatedResponse, PromoCodeValidation } from '@/types'
+import { toPaginated } from '@/lib/pagination'
+import type { CheckoutSession, Payment, PaginatedResponse, PromoCodeValidation } from '@/types'
 
 export interface EarningsSummary {
   lifetime_earned: string
@@ -13,7 +14,7 @@ export const paymentService = {
 
   async listCoach(status?: string, page = 1): Promise<PaginatedResponse<Payment>> {
     const { data } = await api.get('/coach/payments', { params: { status, page } })
-    return data as PaginatedResponse<Payment>
+    return toPaginated<Payment>(data.data)
   },
 
   async summary(): Promise<EarningsSummary> {
@@ -23,7 +24,7 @@ export const paymentService = {
 
   async listAthlete(page = 1): Promise<PaginatedResponse<Payment>> {
     const { data } = await api.get('/athlete/payments', { params: { page } })
-    return data as PaginatedResponse<Payment>
+    return toPaginated<Payment>(data.data)
   },
 
   async createCheckout(bookingUuid: string, returnUrl?: string, cancelUrl?: string, promoCode?: string): Promise<CheckoutSession> {

@@ -1,11 +1,11 @@
 import { Clock, Video, MapPin } from 'lucide-react'
 import { formatPrice, deliveryLabel, cn } from '@/lib/utils'
-import type { CoachPackage } from '@/types'
+import type { PublicCoachPackage } from '@/types'
 
 interface PackageCardProps {
-  pkg: CoachPackage
+  pkg: PublicCoachPackage
   selected?: boolean
-  onSelect?: (pkg: CoachPackage) => void
+  onSelect?: (pkg: PublicCoachPackage) => void
 }
 
 const tierColors: Record<string, string> = {

@@ -19,7 +19,7 @@ import { useCoachProfile, useCoachPackages, useCoachReviews } from '@/hooks/useM
 import { useToggleFavorite } from '@/hooks/useFavorites'
 import { useAuthStore } from '@/store/auth.store'
 import { formatRating, cn } from '@/lib/utils'
-import type { CoachPackage } from '@/types'
+import type { PublicCoachPackage } from '@/types'
 import { MessageSquare } from 'lucide-react'
 
 export default function CoachDetailPage() {
@@ -33,7 +33,7 @@ export default function CoachDetailPage() {
   const toggleFavorite = useToggleFavorite()
 
   const [requestModalOpen, setRequestModalOpen] = useState(false)
-  const [preselected, setPreselected] = useState<CoachPackage | null>(null)
+  const [preselected, setPreselected] = useState<PublicCoachPackage | null>(null)
 
   if (isLoading) {
     return (
@@ -66,7 +66,7 @@ export default function CoachDetailPage() {
     )
   }
 
-  const openRequestModal = (pkg?: CoachPackage) => {
+  const openRequestModal = (pkg?: PublicCoachPackage) => {
     if (pkg) setPreselected(pkg)
     setRequestModalOpen(true)
   }
@@ -79,12 +79,12 @@ export default function CoachDetailPage() {
       <div className="border-b border-zinc-800 bg-gradient-hero">
         <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
           <div className="flex flex-col items-start gap-6 sm:flex-row">
-            <Avatar src={coach.avatar_path} name={coach.display_name} size="xl" ringStatus={coach.verification_status === 'verified' ? 'verified' : null} />
+            <Avatar src={coach.avatar_url} name={coach.display_name} size="xl" ringStatus={coach.is_verified ? 'verified' : null} />
 
             <div className="flex-1">
               <div className="flex items-center gap-2">
                 <h1 className="font-display text-2xl font-bold text-zinc-50">{coach.display_name}</h1>
-                {coach.verification_status === 'verified' && <BadgeCheck className="h-5 w-5 text-green-500" />}
+                {coach.is_verified && <BadgeCheck className="h-5 w-5 text-green-500" />}
               </div>
 
               {coach.location_city && (
@@ -95,8 +95,8 @@ export default function CoachDetailPage() {
               )}
 
               <div className="mt-3 flex items-center gap-2">
-                <StarDisplay rating={Number(coach.avg_rating ?? 0)} size="md" />
-                <span className="text-sm font-medium text-zinc-200">{formatRating(coach.avg_rating)}</span>
+                <StarDisplay rating={Number(coach.average_rating ?? 0)} size="md" />
+                <span className="text-sm font-medium text-zinc-200">{formatRating(coach.average_rating)}</span>
                 <span className="text-sm text-zinc-500">({t('reviewsCount', { count: coach.total_reviews })})</span>
                 <span className="text-zinc-600">·</span>
                 <span className="text-sm text-zinc-500">{t('sessions', { count: coach.total_sessions })}</span>

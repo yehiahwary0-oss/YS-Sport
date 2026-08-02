@@ -1,13 +1,13 @@
 import { Avatar } from '@/components/ui/Avatar'
 import { StarDisplay } from '@/components/ui/StarRating'
 import { timeAgo } from '@/lib/utils'
-import type { Review } from '@/types'
+import type { PublicCoachReview } from '@/types'
 
-export function ReviewCard({ review }: { review: Review }) {
+export function ReviewCard({ review }: { review: PublicCoachReview }) {
   return (
     <div className="border-b border-zinc-800 py-5 last:border-0">
       <div className="flex items-start gap-3">
-        <Avatar src={review.athlete?.avatar_path} name={review.athlete?.display_name ?? 'Athlete'} size="sm" />
+        <Avatar src={review.athlete?.avatar_url} name={review.athlete?.display_name ?? 'Athlete'} size="sm" />
         <div className="flex-1">
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-zinc-200">{review.athlete?.display_name}</span>

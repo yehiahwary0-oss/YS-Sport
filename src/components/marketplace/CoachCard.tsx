@@ -4,20 +4,21 @@ import { useTranslations } from 'next-intl'
 import { Link } from '@/navigation'
 import { MapPin, BadgeCheck, Heart } from 'lucide-react'
 import { Avatar } from '@/components/ui/Avatar'
+import { Skeleton } from '@/components/ui/Skeleton'
 import { StarDisplay } from '@/components/ui/StarRating'
 import { formatPrice, formatRating, cn } from '@/lib/utils'
-import type { CoachProfile } from '@/types'
+import type { MarketplaceCoach } from '@/types'
 
 interface CoachCardProps {
-  coach: CoachProfile
+  coach: MarketplaceCoach
   onToggleFavorite?: (uuid: string) => void
   isFavoriting?: boolean
 }
 
 export function CoachCard({ coach, onToggleFavorite, isFavoriting }: CoachCardProps) {
   const t = useTranslations('marketplace.coachCard')
-  const startingPrice = coach.active_packages?.length
-    ? Math.min(...coach.active_packages.map((p) => Number(p.price_amount)))
+  const startingPrice = coach.packages?.length
+    ? Math.min(...coach.packages.map((p) => Number(p.price_amount)))
     : null
 
   return (
@@ -45,17 +46,17 @@ export function CoachCard({ coach, onToggleFavorite, isFavoriting }: CoachCardPr
         {/* Header */}
         <div className="flex items-start gap-3">
           <Avatar
-            src={coach.avatar_path}
+            src={coach.avatar_url}
             name={coach.display_name}
             size="lg"
-            ringStatus={coach.verification_status === 'verified' ? 'verified' : null}
+            ringStatus={coach.is_verified ? 'verified' : null}
           />
           <div className="flex-1 pt-0.5">
             <div className="flex items-center gap-1.5">
               <h3 className="font-display font-semibold text-zinc-100 group-hover:text-green-400 transition-colors">
                 {coach.display_name}
               </h3>
-              {coach.verification_status === 'verified' && (
+              {coach.is_verified && (
                 <BadgeCheck className="h-4 w-4 shrink-0 text-green-500" />
               )}
             </div>
@@ -72,8 +73,8 @@ export function CoachCard({ coach, onToggleFavorite, isFavoriting }: CoachCardPr
 
         {/* Rating */}
         <div className="mt-3 flex items-center gap-2">
-          <StarDisplay rating={Number(coach.avg_rating ?? 0)} />
-          <span className="text-sm font-medium text-zinc-300">{formatRating(coach.avg_rating)}</span>
+          <StarDisplay rating={Number(coach.average_rating ?? 0)} />
+          <span className="text-sm font-medium text-zinc-300">{formatRating(coach.average_rating)}</span>
           <span className="text-xs text-zinc-500">({coach.total_reviews})</span>
         </div>
 
@@ -115,20 +116,20 @@ export function CoachCard({ coach, onToggleFavorite, isFavoriting }: CoachCardPr
   )
 }
 
-export function CoachCardSkeleton() {
+export function CoachCardSkeleton({ delay = 0 }: { delay?: number }) {
   return (
     <div className="card p-5">
       <div className="flex items-start gap-3">
-        <div className="h-16 w-16 animate-pulse rounded-full bg-navy-700" />
+        <Skeleton className="h-16 w-16 rounded-full" delay={delay} />
         <div className="flex-1 space-y-2 pt-1">
-          <div className="h-4 w-2/3 animate-pulse rounded bg-navy-700" />
-          <div className="h-3 w-1/2 animate-pulse rounded bg-navy-700" />
+          <Skeleton className="h-4 w-2/3" delay={delay + 60} />
+          <Skeleton className="h-3 w-1/2" delay={delay + 120} />
         </div>
       </div>
-      <div className="mt-4 h-3 w-1/3 animate-pulse rounded bg-navy-700" />
+      <Skeleton className="mt-4 h-3 w-1/3" delay={delay + 180} />
       <div className="mt-4 flex gap-2">
-        <div className="h-5 w-16 animate-pulse rounded bg-navy-700" />
-        <div className="h-5 w-16 animate-pulse rounded bg-navy-700" />
+        <Skeleton className="h-5 w-16" delay={delay + 240} />
+        <Skeleton className="h-5 w-16" delay={delay + 300} />
       </div>
     </div>
   )

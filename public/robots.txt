@@ -1,0 +1,16 @@
+User-agent: *
+Allow: /
+
+# Dashboard areas (coach / athlete / admin) and auth — never index these
+Disallow: /en/auth/
+Disallow: /en/coach/
+Disallow: /en/athlete/
+Disallow: /en/admin/
+Disallow: /en/api/
+Disallow: /ar/auth/
+Disallow: /ar/coach/
+Disallow: /ar/athlete/
+Disallow: /ar/admin/
+Disallow: /ar/api/
+
+Sitemap: https://yssports.com/sitemap.xml

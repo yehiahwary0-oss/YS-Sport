@@ -20,7 +20,6 @@ export default function CoachProfilePage() {
   const t = useTranslations('coach.profile')
   const tv = useTranslations('validation')
   const ta = useTranslations('auth')
-  const tc = useTranslations('common')
   const { data: profile, isLoading, isError } = useCoachProfileSelf()
   const { data: allSports } = useSports()
   const updateProfile = useUpdateCoachProfile()

@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import AthleteProgressionPage from '../page'
 
-const mockUser = { uuid: 'athlete-1', email: 'john@example.com', display_name: 'John Doe' }
+const mockUser = { uuid: 'athlete-1', email: 'john@example.com', display_name: 'John Doe', status: 'active' }
 
 const mockData = {
   data: {
@@ -51,6 +51,7 @@ vi.mock('@/store/auth.store', () => ({
 
 vi.mock('@/hooks/useAthleteProgression', () => ({
   useAthleteProgression: vi.fn(),
+  usePublicAthleteProgression: vi.fn(() => ({ data: undefined })),
 }))
 
 const { useAthleteProgression } = await import('@/hooks/useAthleteProgression')
@@ -169,5 +170,36 @@ describe('AthleteProgressionPage', () => {
     renderPage()
 
     expect(document.querySelector('.animate-spin')).toBeInTheDocument()
+  })
+
+  it('should render XP history and locked achievements placeholder sections', () => {
+    vi.mocked(useAthleteProgression).mockReturnValue({
+      data: mockData,
+      isLoading: false,
+      isError: false,
+      error: null,
+      refetch: vi.fn(),
+    })
+
+    renderPage()
+
+    expect(screen.getByText('xp_history')).toBeInTheDocument()
+    expect(screen.getByText('lockedTitle')).toBeInTheDocument()
+    expect(screen.getByText('locked.reach_level_10')).toBeInTheDocument()
+    expect(screen.getByText('coming_soon')).toBeInTheDocument()
+  })
+
+  it('should show online indicator when the auth user is active', () => {
+    vi.mocked(useAthleteProgression).mockReturnValue({
+      data: mockData,
+      isLoading: false,
+      isError: false,
+      error: null,
+      refetch: vi.fn(),
+    })
+
+    renderPage()
+
+    expect(screen.getByLabelText('online')).toBeInTheDocument()
   })
 })

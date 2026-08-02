@@ -25,13 +25,23 @@ export function RoleGuard({
       return
     }
 
+    if (user.status === 'suspended') {
+      router.replace('/auth/suspended')
+      return
+    }
+
     if (!allowedRoles.includes(user.role)) {
       const fallback = user.role === 'coach' ? '/coach/dashboard' : '/athlete/dashboard'
       router.replace(fallback)
     }
   }, [user, isInitialized, allowedRoles, router])
 
-  if (!isInitialized || !user || !allowedRoles.includes(user.role)) {
+  if (
+    !isInitialized ||
+    !user ||
+    user.status === 'suspended' ||
+    !allowedRoles.includes(user.role)
+  ) {
     return <FullPageSpinner />
   }
 

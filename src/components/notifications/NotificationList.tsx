@@ -9,6 +9,7 @@ import { ErrorState } from '@/components/ui/ErrorState'
 import { Button } from '@/components/ui/Button'
 import { Select } from '@/components/ui/Select'
 import { useNotifications, useMarkNotificationRead, useMarkAllNotificationsRead } from '@/hooks/useNotifications'
+import { PushNotificationToggle } from '@/components/notifications/PushNotificationToggle'
 import { timeAgo, cn } from '@/lib/utils'
 
 const READ_OPTIONS = [
@@ -61,9 +62,9 @@ export function NotificationList() {
 
   const typeOptions = [
     { value: '', label: t('filterAll') },
-    ...Object.entries(TYPE_MAP).map(([i18nKey, backendValue]) => ({
-      value: backendValue,
-      label: t(`types.${i18nKey}` as any),
+    ...Object.entries(TYPE_MAP).map(([backendType, i18nKey]) => ({
+      value: i18nKey,
+      label: t(`types.${backendType}`),
     })),
   ]
 
@@ -74,6 +75,7 @@ export function NotificationList() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-4">
+      <PushNotificationToggle />
       <div className="flex flex-wrap items-end gap-3">
         <div className="min-w-[180px] flex-1 sm:flex-none">
           <Select
@@ -104,7 +106,7 @@ export function NotificationList() {
                   : 'text-zinc-400 hover:text-zinc-200'
               )}
             >
-              {t(opt.labelKey as any)}
+              {t(opt.labelKey)}
             </button>
           ))}
         </div>

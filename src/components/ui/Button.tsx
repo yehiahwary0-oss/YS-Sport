@@ -1,4 +1,7 @@
+'use client'
+
 import { forwardRef, type ButtonHTMLAttributes } from 'react'
+import { motion, type MotionProps } from 'framer-motion'
 import { Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -21,18 +24,23 @@ const sizeClasses = {
   lg: 'px-6 py-3 text-base',
 }
 
-export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+export const Button = forwardRef<HTMLButtonElement, ButtonProps & MotionProps>(
   ({ className, variant = 'primary', size = 'md', isLoading, disabled, children, ...props }, ref) => {
+    const isDisabled = disabled || isLoading
+
     return (
-      <button
+      <motion.button
         ref={ref}
-        disabled={disabled || isLoading}
+        disabled={isDisabled}
+        whileTap={isDisabled ? undefined : { scale: 0.97 }}
+        whileHover={isDisabled ? undefined : { y: -2 }}
+        transition={{ type: 'spring', stiffness: 300, damping: 20 }}
         className={cn(variantClasses[variant], sizeClasses[size], className)}
         {...props}
       >
         {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
         {children}
-      </button>
+      </motion.button>
     )
   }
 )

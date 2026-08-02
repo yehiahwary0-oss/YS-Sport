@@ -8,7 +8,7 @@ interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
 }
 
 export const Select = forwardRef<HTMLSelectElement, SelectProps>(
-  ({ className, label, error, id, children, ...props }, ref) => {
+  ({ className, label, error, id, required, children, ...props }, ref) => {
     const inputId = id ?? props.name
 
     return (
@@ -16,6 +16,11 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
         {label && (
           <label htmlFor={inputId} className="label-text">
             {label}
+            {required && (
+              <span className="ml-1 text-red-400" aria-hidden="true">
+                *
+              </span>
+            )}
           </label>
         )}
         <div className="relative">
@@ -23,13 +28,20 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
             ref={ref}
             id={inputId}
             className={cn('input-base appearance-none pr-10', error && 'border-red-500', className)}
+            aria-invalid={error ? true : undefined}
+            aria-describedby={error ? `${inputId}-error` : undefined}
+            aria-required={required || undefined}
             {...props}
           >
             {children}
           </select>
           <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" />
         </div>
-        {error && <p className="error-text">{error}</p>}
+        {error && (
+          <p id={`${inputId}-error`} className="error-text" role="alert">
+            {error}
+          </p>
+        )}
       </div>
     )
   }

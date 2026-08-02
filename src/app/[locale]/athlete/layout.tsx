@@ -45,7 +45,7 @@ export default function AthleteLayout({ children }: { children: React.ReactNode 
         <DashboardSidebar items={navItems} />
         <div className="flex-1">
           <DashboardNavbar title={title} mobileNavItems={navItems} />
-          <main className="p-4 lg:p-8">{children}</main>
+          <main id="main-content" className="p-4 lg:p-8">{children}</main>
         </div>
       </div>
     </RoleGuard>

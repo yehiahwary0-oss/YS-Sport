@@ -5,7 +5,7 @@ export type UserStatus = 'pending' | 'active' | 'suspended'
 export type CoachVerificationStatus = 'unverified' | 'pending' | 'verified' | 'rejected'
 export type BookingStatus = 'pending' | 'confirmed' | 'completed' | 'cancelled' | 'no_show'
 export type ServiceRequestStatus = 'pending' | 'accepted' | 'rejected' | 'cancelled'
-export type PaymentStatus = 'pending' | 'paid' | 'refunded' | 'disputed' | 'failed'
+export type PaymentStatus = 'pending' | 'paid' | 'refund_pending' | 'refunded' | 'disputed' | 'failed'
 export type DeliveryMode = 'online' | 'in_person' | 'both'
 export type FitnessLevel = 'beginner' | 'intermediate' | 'advanced'
 export type ReviewStatus = 'approved' | 'pending' | 'rejected'
@@ -180,6 +180,7 @@ export interface CoachProfile {
   sports: Sport[]
   is_favorited?: boolean
   active_packages?: CoachPackage[]
+  user?: { uuid: string; email: string } | null
   created_at: string
 }
 
@@ -297,12 +298,13 @@ export interface Payment {
 
 export interface Message {
   uuid: string
-  sender_id: number
+  conversation_id?: string
+  sender_id: string | null
   body: string
   is_system: boolean
   read_at: string | null
   created_at: string
-  sender?: { uuid: string }
+  sender?: { uuid: string; name?: string | null; avatar?: string | null }
 }
 
 export interface Conversation {
@@ -328,6 +330,7 @@ export interface Review {
   coach_replied_at: string | null
   reported_at: string | null
   athlete?: AthleteProfile
+  coach?: CoachProfile
   created_at: string
 }
 
@@ -445,9 +448,52 @@ export interface FeaturedCoach {
   coach?: CoachProfile
 }
 
+// ── Public Marketplace (whitelisted shapes — no internal fields) ──
+
+export interface PublicCoachPackage {
+  uuid: string
+  name: string
+  description: string | null
+  tier_label: 'basic' | 'standard' | 'premium' | null
+  session_count: number
+  session_duration_minutes: number
+  delivery_mode: DeliveryMode
+  price_amount: string
+  price_currency: string
+  is_active: boolean
+}
+
+export interface MarketplaceCoach {
+  uuid: string
+  display_name: string
+  bio: string | null
+  years_experience: number | null
+  location_city: string | null
+  location_country: string | null
+  avatar_url: string | null
+  is_accepting_clients: boolean
+  is_verified: boolean
+  average_rating: string | null
+  total_reviews: number
+  total_sessions: number
+  is_favorited?: boolean
+  sports: Sport[]
+  packages?: PublicCoachPackage[]
+}
+
+export interface PublicCoachReview {
+  uuid: string
+  rating: number
+  comment: string | null
+  coach_reply: string | null
+  coach_replied_at: string | null
+  created_at: string
+  athlete?: { uuid: string; display_name: string; avatar_url: string | null }
+}
+
 export interface MarketplaceResponse {
-  data: CoachProfile[]
-  meta: PaginatedResponse<CoachProfile>['meta']
+  data: MarketplaceCoach[]
+  meta: PaginatedResponse<MarketplaceCoach>['meta']
   filters_applied: Partial<MarketplaceFilters>
 }
 

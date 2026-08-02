@@ -66,18 +66,12 @@ export function statusColor(status: string): string {
     accepted:  'text-green-500 bg-green-500/10',
     rejected:  'text-red-400 bg-red-400/10',
     paid:      'text-green-500 bg-green-500/10',
+    refund_pending: 'text-blue-400 bg-blue-400/10',
     refunded:  'text-amber-400 bg-amber-400/10',
     verified:  'text-green-500 bg-green-500/10',
     unverified:'text-zinc-400 bg-zinc-400/10',
   }
   return map[status] ?? 'text-zinc-400 bg-zinc-400/10'
-}
-
-// ── Truncate text ──────────────────────────────────────────────
-
-export function truncate(text: string, length: number = 120): string {
-  if (text.length <= length) return text
-  return text.slice(0, length).trimEnd() + '…'
 }
 
 // ── Get initials for avatar fallback ──────────────────────────

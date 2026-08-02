@@ -1,7 +1,7 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
-import { LayoutDashboard, Package, CalendarClock, Inbox, Calendar, User, DollarSign, Bell } from 'lucide-react'
+import { LayoutDashboard, Package, CalendarClock, Inbox, Calendar, User, DollarSign, Bell, Wallet } from 'lucide-react'
 import { RoleGuard } from '@/components/shared/RoleGuard'
 import { DashboardSidebar, type NavItem } from '@/components/layout/DashboardSidebar'
 import { DashboardNavbar } from '@/components/layout/DashboardNavbar'
@@ -21,6 +21,7 @@ export default function CoachLayout({ children }: { children: React.ReactNode })
     '/coach/requests': t('requests'),
     '/coach/bookings': t('bookings'),
     '/coach/earnings': t('earnings'),
+    '/coach/payouts': t('payouts'),
     '/coach/notifications': t('notifications'),
     '/coach/profile': t('profile'),
   }
@@ -42,6 +43,7 @@ export default function CoachLayout({ children }: { children: React.ReactNode })
     { label: t('requests'), href: '/coach/requests', icon: Inbox, badge: pendingRequests?.meta.total },
     { label: t('bookings'), href: '/coach/bookings', icon: Calendar },
     { label: t('earnings'), href: '/coach/earnings', icon: DollarSign },
+    { label: t('payouts'), href: '/coach/payouts', icon: Wallet },
     { label: t('notifications'), href: '/coach/notifications', icon: Bell, badge: unreadCount },
     { label: t('profile'), href: '/coach/profile', icon: User },
   ]
@@ -52,7 +54,7 @@ export default function CoachLayout({ children }: { children: React.ReactNode })
         <DashboardSidebar items={navItems} />
         <div className="flex-1">
           <DashboardNavbar title={title} mobileNavItems={navItems} />
-          <main className="p-4 lg:p-8">{children}</main>
+          <main id="main-content" className="p-4 lg:p-8">{children}</main>
         </div>
       </div>
     </RoleGuard>

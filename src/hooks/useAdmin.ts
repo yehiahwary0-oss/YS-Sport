@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
-import { adminService } from '@/services/admin.service'
+import { adminService, type AdminAthletesFilters, type AdminBookingsFilters, type AdminCoachesFilters, type AdminPaymentsFilters, type AdminPayoutsFilters, type AdminReviewsFilters, type AdminUsersFilters } from '@/services/admin.service'
 import { getApiError } from '@/lib/api'
 
 export function useAdminMetrics() {
@@ -11,12 +11,27 @@ export function useAdminMetrics() {
   })
 }
 
+export function useAdminAuditLogs(limit = 10) {
+  return useQuery({
+    queryKey: ['admin', 'audit-logs', limit],
+    queryFn: () => adminService.auditLogs(limit),
+    refetchInterval: 60_000,
+  })
+}
+
 // ── Coach verification ───────────────────────────────────────
 
 export function usePendingCoaches() {
   return useQuery({
     queryKey: ['admin', 'coaches', 'pending'],
     queryFn: () => adminService.pendingCoaches(),
+  })
+}
+
+export function useAdminCoaches(params: AdminCoachesFilters) {
+  return useQuery({
+    queryKey: ['admin', 'coaches', params],
+    queryFn: () => adminService.listCoaches(params),
   })
 }
 
@@ -55,10 +70,17 @@ export function usePendingPayments() {
   })
 }
 
-export function useAdminPayments(status?: string) {
+export function useAdminPayments(params: AdminPaymentsFilters) {
   return useQuery({
-    queryKey: ['admin', 'payments', status],
-    queryFn: () => adminService.allPayments(status),
+    queryKey: ['admin', 'payments', params],
+    queryFn: () => adminService.allPayments(params),
+  })
+}
+
+export function useAdminPayouts(params: AdminPayoutsFilters) {
+  return useQuery({
+    queryKey: ['admin', 'payouts', params],
+    queryFn: () => adminService.listPayouts(params),
   })
 }
 
@@ -80,8 +102,8 @@ export function useRefundPayment() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: ({ uuid, reason }: { uuid: string; reason: string }) => adminService.refundPayment(uuid, reason),
-    onSuccess: () => {
-      toast.success('Payment marked as refunded.')
+    onSuccess: (data) => {
+      toast.success(data.message ?? 'Payment refunded.')
       queryClient.invalidateQueries({ queryKey: ['admin', 'payments'] })
     },
     onError: (err) => toast.error(getApiError(err)),
@@ -90,7 +112,7 @@ export function useRefundPayment() {
 
 // ── Users ─────────────────────────────────────────────────────
 
-export function useAdminUsers(params: { role?: string; status?: string; search?: string }) {
+export function useAdminUsers(params: AdminUsersFilters) {
   return useQuery({
     queryKey: ['admin', 'users', params],
     queryFn: () => adminService.listUsers(params),
@@ -123,10 +145,10 @@ export function useReactivateUser() {
 
 // ── Bookings oversight ────────────────────────────────────────
 
-export function useAdminBookings(status?: string) {
+export function useAdminBookings(params: AdminBookingsFilters) {
   return useQuery({
-    queryKey: ['admin', 'bookings', status],
-    queryFn: () => adminService.listBookings({ status }),
+    queryKey: ['admin', 'bookings', params],
+    queryFn: () => adminService.listBookings(params),
   })
 }
 
@@ -144,7 +166,7 @@ export function useForceCompleteBooking() {
 
 // ── Reviews moderation ────────────────────────────────────────
 
-export function useAdminReviews(params: { status?: string; reported?: boolean }) {
+export function useAdminReviews(params: AdminReviewsFilters) {
   return useQuery({
     queryKey: ['admin', 'reviews', params],
     queryFn: () => adminService.listReviews(params),
@@ -340,7 +362,7 @@ export function useDeletePromoCode() {
 
 // ── Athlete List & Progression ──────────────────────────────────
 
-export function useAdminAthletes(params: { search?: string; status?: string; page?: number }) {
+export function useAdminAthletes(params: AdminAthletesFilters) {
   return useQuery({
     queryKey: ['admin', 'athletes', params],
     queryFn: () => adminService.listAthletes(params),

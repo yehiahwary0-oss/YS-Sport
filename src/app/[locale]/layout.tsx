@@ -32,6 +32,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     description: t('description'),
     icons: { icon: '/icon.png' },
+    manifest: '/manifest.json',
+    themeColor: '#0a0a0a',
+    appleWebApp: {
+      capable: true,
+      statusBarStyle: 'black-translucent',
+      title: 'YS Sports',
+    },
     openGraph: {
       title: t('ogTitle'),
       description: t('ogDescription'),
@@ -58,6 +65,21 @@ export default async function LocaleLayout({ children, params }: Props) {
 
   return (
     <html lang={locale} dir={dir} className={`${inter.variable} ${spaceGrotesk.variable}`}>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'SportsOrganization',
+              name: 'YS Sports',
+              url: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000').origin,
+              logo: '/icon-192.png',
+              sameAs: [],
+            }),
+          }}
+        />
+      </head>
       <body className="font-sans">
         <NextIntlClientProvider locale={locale} messages={messages}>
           <Providers>{children}</Providers>

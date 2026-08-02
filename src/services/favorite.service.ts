@@ -1,11 +1,11 @@
 import { api } from '@/lib/api'
-import type { CoachProfile, PaginatedResponse } from '@/types'
+import type { MarketplaceCoach, PaginatedResponse } from '@/types'
 
 export const favoriteService = {
 
-  async list(page = 1): Promise<PaginatedResponse<CoachProfile>> {
+  async list(page = 1): Promise<PaginatedResponse<MarketplaceCoach>> {
     const { data } = await api.get('/athlete/favorites', { params: { page } })
-    return data as PaginatedResponse<CoachProfile>
+    return data.data as PaginatedResponse<MarketplaceCoach>
   },
 
   async toggle(coachUuid: string): Promise<{ is_favorited: boolean }> {

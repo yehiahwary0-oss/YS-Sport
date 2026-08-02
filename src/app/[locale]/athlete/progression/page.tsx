@@ -3,11 +3,13 @@
 import { useTranslations } from 'next-intl'
 import { Award, Swords } from 'lucide-react'
 import { useAuthStore } from '@/store/auth.store'
-import { useAthleteProgression } from '@/hooks/useAthleteProgression'
+import { useAthleteProgression, usePublicAthleteProgression } from '@/hooks/useAthleteProgression'
 import { ProgressionHeader } from '@/components/athlete/ProgressionHeader'
 import { SummaryCards } from '@/components/athlete/SummaryCards'
 import { SportProgressionCard, SportProgressionCardSkeleton } from '@/components/athlete/SportProgressionCard'
 import { AchievementSection, AchievementSectionSkeleton } from '@/components/athlete/AchievementSection'
+import { LockedAchievements } from '@/components/athlete/LockedAchievements'
+import { XpHistorySection } from '@/components/athlete/XpHistorySection'
 import { ErrorState } from '@/components/ui/ErrorState'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { FullPageSpinner } from '@/components/ui/Spinner'
@@ -16,6 +18,7 @@ export default function AthleteProgressionPage() {
   const t = useTranslations('progression')
   const user = useAuthStore((s) => s.user)
   const { data, isLoading, isError, error, refetch } = useAthleteProgression()
+  const { data: publicProfile } = usePublicAthleteProgression(user?.uuid)
 
   if (isLoading) {
     return (
@@ -26,8 +29,8 @@ export default function AthleteProgressionPage() {
             <div key={i} className="h-20 animate-pulse rounded-xl bg-navy-800/50" />
           ))}
         </div>
-        <div aria-hidden="true" className="grid gap-3 sm:grid-cols-2">
-          {Array.from({ length: 2 }).map((_, i) => (
+        <div aria-hidden="true" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 3 }).map((_, i) => (
             <SportProgressionCardSkeleton key={i} />
           ))}
         </div>
@@ -59,6 +62,7 @@ export default function AthleteProgressionPage() {
   }
 
   const { athlete, summary, sports, achievements } = data.data
+  const online = user?.status === 'active'
 
   return (
     <div className="space-y-6">
@@ -67,6 +71,9 @@ export default function AthleteProgressionPage() {
           uuid={athlete.uuid}
           displayName={athlete.display_name}
           avatarUrl={athlete.avatar_url}
+          bio={publicProfile?.data.athlete.bio ?? null}
+          joinedAt={publicProfile?.data.joined_at ?? null}
+          online={online}
         />
       </section>
 
@@ -92,7 +99,7 @@ export default function AthleteProgressionPage() {
             description={t('no_sports_desc')}
           />
         ) : (
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {sports.map((sp) => (
               <SportProgressionCard key={`${sp.sport.id}`} sport={sp} />
             ))}
@@ -101,6 +108,8 @@ export default function AthleteProgressionPage() {
       </section>
 
       <AchievementSection achievements={achievements} />
+      <LockedAchievements />
+      <XpHistorySection />
     </div>
   )
 }

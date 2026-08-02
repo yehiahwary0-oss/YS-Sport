@@ -10,15 +10,15 @@ import { PackageCard } from './PackageCard'
 import { formatPrice } from '@/lib/utils'
 import { useCreateServiceRequest } from '@/hooks/useServiceRequest'
 import { useAuthStore } from '@/store/auth.store'
-import type { CoachPackage } from '@/types'
+import type { PublicCoachPackage } from '@/types'
 
 interface SendRequestModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   coachUuid: string
   coachName: string
-  packages: CoachPackage[]
-  preselectedPackage?: CoachPackage | null
+  packages: PublicCoachPackage[]
+  preselectedPackage?: PublicCoachPackage | null
 }
 
 export function SendRequestModal({
@@ -33,7 +33,7 @@ export function SendRequestModal({
   const tc = useTranslations('common')
   const router = useRouter()
   const user = useAuthStore((s) => s.user)
-  const [selectedPackage, setSelectedPackage] = useState<CoachPackage | null>(preselectedPackage ?? null)
+  const [selectedPackage, setSelectedPackage] = useState<PublicCoachPackage | null>(preselectedPackage ?? null)
   const [message, setMessage] = useState('')
   const createRequest = useCreateServiceRequest()
 
