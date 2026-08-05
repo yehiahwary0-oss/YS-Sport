@@ -54,6 +54,64 @@ export interface Sport {
   icon: string | null
 }
 
+// ── Training Plans & AI Coach ─────────────────────────────────
+
+export type TrainingLevel = 'beginner' | 'intermediate' | 'advanced'
+
+export type TrainingPlanGoal = 'fitness' | 'competition' | 'weight_loss' | 'muscle_gain' | 'general'
+
+export interface TrainingPlanSession {
+  day: string
+  type: string
+  duration: string
+  intensity: string
+}
+
+export interface TrainingPlanWeek {
+  week: number
+  focus: string
+  sessions: TrainingPlanSession[]
+}
+
+export interface TrainingPlanTemplate {
+  uuid: string
+  sport: { id: number; name: string; slug: string } | null
+  level: TrainingLevel
+  goal: TrainingPlanGoal
+  title: { en: string; ar: string }
+  description: { en: string; ar: string }
+  duration_weeks: number
+  sessions_per_week: number
+  plan_structure: TrainingPlanWeek[]
+  is_active: boolean
+  match_type?: 'exact' | 'close' | 'generic'
+  match_score?: number
+}
+
+export interface TrainingPlanMatch {
+  template: TrainingPlanTemplate
+  match_type: 'exact' | 'close' | 'generic'
+}
+
+export interface AiChatMessage {
+  role: 'user' | 'assistant'
+  content: string
+  timestamp: string
+}
+
+export interface AiConversation {
+  uuid: string
+  created_at: string
+  updated_at: string
+  messages: AiChatMessage[]
+}
+
+export interface AiChatResponse {
+  conversation_id: string
+  reply: string
+  suggested_questions: string[]
+}
+
 // ── Progression & Achievements ─────────────────────────────────
 
 export interface SportProgression {

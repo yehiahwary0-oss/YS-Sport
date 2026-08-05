@@ -1,19 +1,23 @@
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages, getTranslations } from 'next-intl/server'
 import { hasLocale } from 'next-intl'
-import { Inter, Space_Grotesk } from 'next/font/google'
+import '@fontsource-variable/inter/wght.css'
+import '@fontsource-variable/space-grotesk/wght.css'
 import { routing } from '@/i18n/routing'
 import { Providers } from '@/app/providers'
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { notFound } from 'next/navigation'
 import '@/app/globals.css'
-
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
-const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], variable: '--font-display' })
 
 type Props = {
   children: React.ReactNode
   params: Promise<{ locale: string }>
+}
+
+// Next 14.2 warns when themeColor is declared inside the metadata export
+// (unsupported metadata key) — it belongs in the viewport export.
+export const viewport: Viewport = {
+  themeColor: '#0a0a0a',
 }
 
 export function generateStaticParams() {
@@ -33,7 +37,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description: t('description'),
     icons: { icon: '/icon.png' },
     manifest: '/manifest.json',
-    themeColor: '#0a0a0a',
     appleWebApp: {
       capable: true,
       statusBarStyle: 'black-translucent',
@@ -64,7 +67,7 @@ export default async function LocaleLayout({ children, params }: Props) {
   const dir = locale === 'ar' ? 'rtl' : 'ltr'
 
   return (
-    <html lang={locale} dir={dir} className={`${inter.variable} ${spaceGrotesk.variable}`}>
+    <html lang={locale} dir={dir}>
       <head>
         <script
           type="application/ld+json"

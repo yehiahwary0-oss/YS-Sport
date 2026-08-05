@@ -1,7 +1,19 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
-import { LayoutDashboard, Calendar, Send, Heart, User, Bell, CreditCard, Gift, TrendingUp } from 'lucide-react'
+import {
+  LayoutDashboard,
+  Calendar,
+  Send,
+  Heart,
+  User,
+  Bell,
+  CreditCard,
+  Gift,
+  TrendingUp,
+  ClipboardList,
+  Bot,
+} from 'lucide-react'
 import { RoleGuard } from '@/components/shared/RoleGuard'
 import { DashboardSidebar, type NavItem } from '@/components/layout/DashboardSidebar'
 import { DashboardNavbar } from '@/components/layout/DashboardNavbar'
@@ -23,6 +35,8 @@ export default function AthleteLayout({ children }: { children: React.ReactNode 
     '/athlete/profile': t('profile'),
     '/athlete/referral': t('referral'),
     '/athlete/progression': t('progression'),
+    '/athlete/training-plans': t('trainingPlans'),
+    '/athlete/ai-coach': t('aiCoach'),
   }
 
   const title = Object.entries(titleMap).find(([path]) => pathname.startsWith(path))?.[1] ?? t('dashboard')
@@ -36,6 +50,8 @@ export default function AthleteLayout({ children }: { children: React.ReactNode 
     { label: t('notifications'), href: '/athlete/notifications', icon: Bell, badge: unreadCount },
     { label: t('referral'), href: '/athlete/referral', icon: Gift },
     { label: t('progression'), href: '/athlete/progression', icon: TrendingUp },
+    { label: t('trainingPlans'), href: '/athlete/training-plans', icon: ClipboardList },
+    { label: t('aiCoach'), href: '/athlete/ai-coach', icon: Bot },
     { label: t('profile'), href: '/athlete/profile', icon: User },
   ]
 
