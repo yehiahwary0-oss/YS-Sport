@@ -163,6 +163,24 @@ describe('usePusherConversation', () => {
     expect(fake.subscribe).not.toHaveBeenCalled()
   })
 
+  it('leaves the cache untouched when no conversation data exists', async () => {
+    const fake = createFakePusher()
+    vi.mocked(getPusherClient).mockReturnValue(fake as unknown as ReturnType<typeof getPusherClient>)
+
+    const qc = new QueryClient()
+    renderHook(() => usePusherConversation('conv-1'), { wrapper: createWrapper(qc) })
+
+    await waitFor(() =>
+      expect(fake.subscribe).toHaveBeenCalledWith('private-conversation.conv-1')
+    )
+
+    act(() => {
+      fake.__emit('private-conversation.conv-1', 'MessageSent', FLAT_PAYLOAD)
+    })
+
+    expect(qc.getQueryData(['conversations', 'conv-1'])).toBeUndefined()
+  })
+
   it('unsubscribes from the channel on unmount', async () => {
     const fake = createFakePusher()
     vi.mocked(getPusherClient).mockReturnValue(fake as unknown as ReturnType<typeof getPusherClient>)

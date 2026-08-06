@@ -3,13 +3,19 @@
 import { useParams } from 'next/navigation'
 import { Link } from '@/navigation'
 import { useTranslations } from 'next-intl'
+import { useEffect } from 'react'
 import { XCircle } from 'lucide-react'
 
 import { Button } from '@/components/ui/Button'
+import { ANALYTICS_EVENTS, trackEvent } from '@/lib/analytics'
 
 export default function PaymentErrorPage() {
   const { uuid } = useParams<{ uuid: string }>()
   const t = useTranslations('athlete.paymentResult')
+
+  useEffect(() => {
+    trackEvent(ANALYTICS_EVENTS.paymentFailed)
+  }, [])
 
   return (
     <div className="card mx-auto max-w-md p-8 text-center">

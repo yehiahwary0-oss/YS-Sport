@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Search } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { ANALYTICS_EVENTS, trackEvent } from '@/lib/analytics'
 
 interface SearchBarProps {
   value: string
@@ -18,6 +19,7 @@ export function SearchBar({ value, onChange, placeholder = 'Search coaches by na
     <form
       onSubmit={(e) => {
         e.preventDefault()
+        trackEvent(ANALYTICS_EVENTS.marketplaceSearch)
         onChange(localValue)
       }}
       className={cn('relative', className)}

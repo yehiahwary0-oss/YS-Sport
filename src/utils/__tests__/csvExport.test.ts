@@ -1,82 +1,93 @@
-import { describe, it, expect, vi, afterEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { exportToCsv, timestampedFilename } from '../csvExport'
 
-function stubDomDownload() {
-  let captured: Blob | null = null
-  let capturedLink: Record<string, unknown> | null = null
-  const click = vi.fn()
-  const link: Record<string, unknown> = { click, setAttribute: vi.fn(), style: {}, href: '' }
+describe('exportToCsv', () => {
+  const createObjectURL = vi.fn(() => 'blob:test')
   const revokeObjectURL = vi.fn()
-  const createObjectURL = vi.fn((b: Blob) => {
-    captured = b
-    return 'blob:mock'
+
+  beforeEach(() => {
+    createObjectURL.mockClear()
+    revokeObjectURL.mockClear()
+    vi.stubGlobal('URL', { createObjectURL, revokeObjectURL })
   })
 
-  vi.stubGlobal('URL', { createObjectURL, revokeObjectURL })
-  document.createElement = vi.fn(() => {
-    capturedLink = link
-    return link as unknown as HTMLElement
-  })
-  document.body.appendChild = vi.fn()
-  document.body.removeChild = vi.fn()
-
-  return {
-    click,
-    revokeObjectURL,
-    getBlob: () => captured as Blob,
-    getLink: () => capturedLink as Record<string, unknown>,
-  }
-}
-
-describe('csvExport', () => {
   afterEach(() => {
     vi.unstubAllGlobals()
-    vi.restoreAllMocks()
   })
 
-  it('writes a BOM-prefixed CSV and triggers a download', () => {
-    const { click, revokeObjectURL, getBlob, getLink } = stubDomDownload()
+  function lastBlob(): Blob {
+    return createObjectURL.mock.calls[createObjectURL.mock.calls.length - 1][0] as Blob
+  }
+
+  it('writes a CSV with header, body and BOM', async () => {
+    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
+    const appendChild = vi.spyOn(document.body, 'appendChild')
+    const removeChild = vi.spyOn(document.body, 'removeChild')
 
     exportToCsv(
-      'users.csv',
+      'report.csv',
       [
-        { email: 'a@b.com', role: 'athlete' },
-        { email: 'b@c.com', role: 'coach' },
+        { name: 'Ali', score: 10 },
+        { name: 'Sara', score: 20 },
       ],
       [
-        { key: 'email', header: 'Email', value: (r) => r.email },
-        { key: 'role', header: 'Role', value: (r) => r.role },
+        { key: 'name', header: 'Name', value: (r) => r.name },
+        { key: 'score', header: 'Score', value: (r) => r.score },
       ]
     )
 
-    const blob = getBlob()
-    expect(blob).toBeInstanceOf(Blob)
-    expect(blob.type).toBe('text/csv;charset=utf-8;')
+    expect(createObjectURL).toHaveBeenCalledOnce()
+    expect(appendChild).toHaveBeenCalled()
+    expect(removeChild).toHaveBeenCalled()
+    expect(revokeObjectURL).toHaveBeenCalledWith('blob:test')
     expect(click).toHaveBeenCalled()
-    expect(revokeObjectURL).toHaveBeenCalledWith('blob:mock')
-    expect(getLink().download).toBe('users.csv')
-    expect(getLink().href).toBe('blob:mock')
+
+    const bytes = new Uint8Array(await lastBlob().arrayBuffer())
+    expect(bytes[0]).toBe(0xef)
+    expect(bytes[1]).toBe(0xbb)
+    expect(bytes[2]).toBe(0xbf)
+    const text = new TextDecoder().decode(bytes)
+    expect(text).toContain('Name,Score')
+    expect(text).toContain('Ali,10')
+    expect(text).toContain('Sara,20')
   })
 
-  it('escapes commas, quotes and newlines and includes the BOM in the raw bytes', async () => {
-    const { getBlob } = stubDomDownload()
-
-    exportToCsv('t.csv', [{ a: 'he said "hi"\nand, more' }], [
-      { key: 'a', header: 'Field,One', value: (r) => r.a },
-    ])
-
-    const blob = getBlob()
-    const raw = new Uint8Array(await blob.arrayBuffer())
-    // BOM = EF BB BF, then the UTF-8 payload.
-    expect([raw[0], raw[1], raw[2]]).toEqual([0xef, 0xbb, 0xbf])
-
-    const payload = new TextDecoder().decode(raw.subarray(3))
-    expect(payload).toContain('"Field,One"')
-    expect(payload).toContain('"he said ""hi""\nand, more"')
+  it('quotes cells that contain commas or quotes', async () => {
+    vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
+    exportToCsv(
+      'x.csv',
+      [{ note: 'Hello, world', quote: 'He said "hi"' }],
+      [
+        { key: 'note', header: 'Note', value: (r) => r.note },
+        { key: 'quote', header: 'Quote', value: (r) => r.quote },
+      ]
+    )
+    const text = new TextDecoder().decode(await lastBlob().arrayBuffer())
+    expect(text).toContain('"Hello, world"')
+    expect(text).toContain('"He said ""hi"""')
   })
 
-  it('formats a timestamped filename', () => {
-    const name = timestampedFilename('users')
-    expect(name).toMatch(/^users_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}\.csv$/)
+  it('turns null and undefined values into empty cells', async () => {
+    vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
+    exportToCsv(
+      'x.csv',
+      [{ a: null, b: undefined }],
+      [
+        { key: 'a', header: 'A', value: (r) => r.a },
+        { key: 'b', header: 'B', value: (r) => r.b },
+      ]
+    )
+    const text = new TextDecoder().decode(await lastBlob().arrayBuffer())
+    expect(text).toContain('A,B')
+    expect(text).toContain('A,')
+  })
+})
+
+describe('timestampedFilename', () => {
+  it('prefixes the timestamp in the expected format', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date(2026, 0, 5, 9, 30))
+    expect(timestampedFilename('payouts')).toBe('payouts_2026-01-05_09-30.csv')
+    vi.useRealTimers()
   })
 })

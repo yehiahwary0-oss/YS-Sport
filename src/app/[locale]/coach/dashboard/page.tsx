@@ -2,7 +2,7 @@
 
 import { Link } from '@/navigation'
 import { useTranslations } from 'next-intl'
-import { Inbox, Calendar, DollarSign, Star, ArrowRight } from 'lucide-react'
+import { Inbox, Calendar, DollarSign, Star, ArrowRight, BadgeCheck, Clock, XCircle, ShieldQuestion } from 'lucide-react'
 import { ServiceRequestCard, ServiceRequestCardSkeleton } from '@/components/shared/ServiceRequestCard'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { ErrorState } from '@/components/ui/ErrorState'
@@ -10,7 +10,8 @@ import { useCoachServiceRequests } from '@/hooks/useServiceRequest'
 import { useCoachBookings } from '@/hooks/useBookings'
 import { useEarningsSummary } from '@/hooks/useEarnings'
 import { useCoachProfileSelf } from '@/hooks/useProfile'
-import { formatPrice, formatRating } from '@/lib/utils'
+import { formatPrice, formatRating, cn } from '@/lib/utils'
+import type { CoachProfile } from '@/types'
 
 export default function CoachDashboardPage() {
   const t = useTranslations('coach.dashboard')
@@ -19,12 +20,50 @@ export default function CoachDashboardPage() {
   const { data: confirmedBookings } = useCoachBookings('confirmed')
   const { data: earnings } = useEarningsSummary()
 
+  const status = profile?.verification_status
+
   return (
     <div className="space-y-8">
       <div>
         <h2 className="font-display text-xl font-bold text-zinc-50">{t('title', { name: profile?.display_name ?? '' })}</h2>
         <p className="mt-1 text-sm text-zinc-400">{t('subtitle')}</p>
       </div>
+
+      {/* Verification status badge */}
+      {profile && status && (
+        <div className={cn(
+          'card flex flex-wrap items-center justify-between gap-3 p-4',
+          status === 'verified' && 'border-green-500/30',
+          status === 'pending' && 'border-amber-400/30',
+          status === 'rejected' && 'border-red-500/30'
+        )}>
+          <div className="flex items-center gap-3">
+            {status === 'verified' && <BadgeCheck className="h-5 w-5 text-green-400" />}
+            {status === 'pending' && <Clock className="h-5 w-5 text-amber-400" />}
+            {status === 'rejected' && <XCircle className="h-5 w-5 text-red-400" />}
+            {status === 'unverified' && <ShieldQuestion className="h-5 w-5 text-zinc-400" />}
+            <div>
+              <p className="text-sm font-medium text-zinc-100">
+                {status === 'verified' ? t('verifiedLabel') : status === 'pending' ? t('pendingLabel') : status === 'rejected' ? t('rejectedLabel') : t('unverifiedLabel')}
+              </p>
+              <p className="text-xs text-zinc-500">
+                {status === 'verified' ? t('verifiedHint') : status === 'pending' ? t('pendingHint') : status === 'rejected' ? t('rejectedHint') : t('unverifiedHint')}
+              </p>
+              {status === 'rejected' && profile.rejection_reason && (
+                <p className="mt-1 text-xs text-red-400">
+                  {t('rejectionReason')}: {profile.rejection_reason}
+                </p>
+              )}
+            </div>
+          </div>
+          {(status === 'rejected' || status === 'unverified') && (
+            <Link href="/coach/profile" className="inline-flex items-center gap-1.5 text-sm font-medium text-green-400 hover:text-green-300">
+              {status === 'rejected' ? t('resubmit') : t('getVerified')}
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          )}
+        </div>
+      )}
 
       {/* Profile completion banner */}
       {profile && profile.profile_completion < 100 && (

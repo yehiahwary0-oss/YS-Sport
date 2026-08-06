@@ -2,7 +2,7 @@
  *
  * Strategies:
  *  - Install : precache app shell + icons
- *  - API GET : stale-while-revalidate (auth /auth/* responses never cached)
+ *  - API GET : network-first (auth /auth/* + push-subscription never cached)
  *  - Navigate: network-first, offline fallback to cached start page
  *  - Static  : cache-first
  *
@@ -46,18 +46,22 @@ const isAuthOrSensitive = (request, url) =>
   url.pathname.includes('/auth/') ||
   url.pathname.includes('push-subscription')
 
-async function staleWhileRevalidate(request) {
-  const cached = await caches.match(request)
-  const network = fetch(request)
-    .then((response) => {
-      if (response && response.status === 200) {
-        const copy = response.clone()
-        caches.open(CACHE_NAME).then((cache) => cache.put(request, copy))
-      }
-      return response
+async function apiNetworkFirst(request) {
+  try {
+    const response = await fetch(request)
+    if (response && response.status === 200) {
+      const copy = response.clone()
+      caches.open(CACHE_NAME).then((cache) => cache.put(request, copy))
+    }
+    return response
+  } catch (error) {
+    const cached = await caches.match(request)
+    if (cached) return cached
+    return new Response(JSON.stringify({ message: 'Offline' }), {
+      status: 503,
+      headers: { 'Content-Type': 'application/json; charset=utf-8' },
     })
-    .catch(() => cached)
-  return cached || network
+  }
 }
 
 async function networkFirst(request) {
@@ -107,7 +111,7 @@ self.addEventListener('fetch', (event) => {
 
   if (isApiRequest(url)) {
     if (isAuthOrSensitive(request, url)) return
-    event.respondWith(staleWhileRevalidate(request))
+    event.respondWith(apiNetworkFirst(request))
     return
   }
 

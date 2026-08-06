@@ -17,6 +17,25 @@ import { ScrollProgressBar } from '@/components/shared/ScrollProgressBar'
 import { SkipToContent } from '@/components/shared/SkipToContent'
 import { useScrollToTop } from '@/hooks/useScrollToTop'
 import { unsubscribeFromPush } from '@/lib/push-notifications'
+import toast from 'react-hot-toast'
+import { useTranslations } from 'next-intl'
+import { initAnalytics } from '@/lib/analytics'
+import { useTrackPageView } from '@/hooks/useAnalytics'
+import {
+  AUTH_EXPIRED_EVENT,
+  AUTH_LOGOUT_EVENT,
+  EXPIRED_QUERY_PARAM,
+} from '@/lib/session-events'
+
+function Analytics() {
+  useEffect(() => {
+    initAnalytics()
+  }, [])
+
+  useTrackPageView()
+
+  return null
+}
 
 function A11yAudit() {
   useEffect(() => {
@@ -46,6 +65,7 @@ function AuthInitializer({ children }: { children: React.ReactNode }) {
   const fetchUser = useAuthStore((s) => s.fetchUser)
   const setUser = useAuthStore((s) => s.setUser)
   const isInitialized = useAuthStore((s) => s.isInitialized)
+  const t = useTranslations('errors')
 
   useEffect(() => {
     fetchUser()
@@ -57,9 +77,19 @@ function AuthInitializer({ children }: { children: React.ReactNode }) {
       setUser(null)
       router.replace('/auth/login')
     }
-    window.addEventListener('auth:logout', handleLogout)
-    return () => window.removeEventListener('auth:logout', handleLogout)
-  }, [router, setUser])
+    const handleExpired = () => {
+      unsubscribeFromPush().catch(() => {})
+      setUser(null)
+      toast.error(t('sessionExpired'))
+      router.replace(`/auth/login?${EXPIRED_QUERY_PARAM}=1`)
+    }
+    window.addEventListener(AUTH_LOGOUT_EVENT, handleLogout)
+    window.addEventListener(AUTH_EXPIRED_EVENT, handleExpired)
+    return () => {
+      window.removeEventListener(AUTH_LOGOUT_EVENT, handleLogout)
+      window.removeEventListener(AUTH_EXPIRED_EVENT, handleExpired)
+    }
+  }, [router, setUser, t])
 
   if (!isInitialized) {
     return (
@@ -95,6 +125,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         </AuthInitializer>
         <ScrollRestorer />
         <ScrollProgressBar />
+        <Analytics />
         <A11yAudit />
         <ServiceWorkerRegister />
         <OfflineBanner />

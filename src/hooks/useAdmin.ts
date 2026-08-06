@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import { adminService, type AdminAthletesFilters, type AdminBookingsFilters, type AdminCoachesFilters, type AdminPaymentsFilters, type AdminPayoutsFilters, type AdminReviewsFilters, type AdminUsersFilters } from '@/services/admin.service'
 import { getApiError } from '@/lib/api'
+import { ANALYTICS_EVENTS, trackEvent } from '@/lib/analytics'
 
 export function useAdminMetrics() {
   return useQuery({
@@ -40,6 +41,7 @@ export function useVerifyCoach() {
   return useMutation({
     mutationFn: (uuid: string) => adminService.verifyCoach(uuid),
     onSuccess: () => {
+      trackEvent(ANALYTICS_EVENTS.coachVerificationApproved)
       toast.success('Coach verified.')
       queryClient.invalidateQueries({ queryKey: ['admin', 'coaches'] })
       queryClient.invalidateQueries({ queryKey: ['admin', 'metrics'] })
@@ -53,6 +55,7 @@ export function useRejectCoach() {
   return useMutation({
     mutationFn: ({ uuid, reason }: { uuid: string; reason: string }) => adminService.rejectCoach(uuid, reason),
     onSuccess: () => {
+      trackEvent(ANALYTICS_EVENTS.coachVerificationRejected)
       toast.success('Coach application rejected.')
       queryClient.invalidateQueries({ queryKey: ['admin', 'coaches'] })
       queryClient.invalidateQueries({ queryKey: ['admin', 'metrics'] })

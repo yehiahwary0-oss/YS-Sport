@@ -1,7 +1,8 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { useRouter, Link } from '@/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -14,6 +15,7 @@ import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 import { useAuthStore } from '@/store/auth.store'
 import { getApiError } from '@/lib/api'
+import { EXPIRED_QUERY_PARAM } from '@/lib/session-events'
 
 const schema = z.object({
   email: z.string().email('Enter a valid email address'),
@@ -22,12 +24,15 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>
 
-export default function LoginPage() {
+function LoginForm() {
   const t = useTranslations('auth')
+  const tErrors = useTranslations('errors')
   const router = useRouter()
   const login = useAuthStore((s) => s.login)
+  const searchParams = useSearchParams()
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const sessionExpired = searchParams.get(EXPIRED_QUERY_PARAM) === '1'
 
   const {
     register,
@@ -53,6 +58,15 @@ export default function LoginPage() {
 
   return (
     <AuthLayout title={t('loginTitle')} subtitle={t('loginSubtitle')}>
+      {sessionExpired && (
+        <div
+          role="alert"
+          data-testid="session-expired-banner"
+          className="mb-6 rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-300"
+        >
+          {tErrors('sessionExpired')}
+        </div>
+      )}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <Input
           label={t('emailLabel')}
@@ -97,5 +111,13 @@ export default function LoginPage() {
         </Link>
       </p>
     </AuthLayout>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
   )
 }

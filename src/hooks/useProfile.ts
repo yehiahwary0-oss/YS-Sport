@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import { profileService } from '@/services/profile.service'
 import { getApiError } from '@/lib/api'
+import { ANALYTICS_EVENTS, trackEvent } from '@/lib/analytics'
 
 // ── Athlete ────────────────────────────────────────────────────
 
@@ -86,6 +87,7 @@ export function useUploadCoachCertificate() {
   return useMutation({
     mutationFn: profileService.uploadCoachCertificate,
     onSuccess: () => {
+      trackEvent(ANALYTICS_EVENTS.coachVerificationSubmitted)
       toast.success('Certificate uploaded.')
       queryClient.invalidateQueries({ queryKey: ['coach', 'profile'] })
     },

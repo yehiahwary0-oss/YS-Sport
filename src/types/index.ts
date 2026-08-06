@@ -230,6 +230,7 @@ export interface CoachProfile {
   certificate_path: string | null
   verification_status: CoachVerificationStatus
   verified_at: string | null
+  rejection_reason: string | null
   is_accepting_clients: boolean
   avg_rating: string | null
   total_reviews: number

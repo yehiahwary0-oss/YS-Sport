@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 import { authService } from '@/services/auth.service'
 import { getApiError, getValidationErrors } from '@/lib/api'
+import { ANALYTICS_EVENTS, trackEvent } from '@/lib/analytics'
 import { cn } from '@/lib/utils'
 
 const schema = z
@@ -59,6 +60,7 @@ export default function RegisterPage() {
     setIsLoading(true)
     try {
       await authService.register(data)
+      trackEvent(ANALYTICS_EVENTS.register, { role: data.role })
       toast.success(t('registerCreated'))
       router.push(`/auth/verify-email?email=${encodeURIComponent(data.email)}`)
     } catch (err) {

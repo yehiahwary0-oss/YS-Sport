@@ -11,6 +11,7 @@ import { AuthLayout } from '@/components/layout/AuthLayout'
 import { Button } from '@/components/ui/Button'
 import { authService } from '@/services/auth.service'
 import { getApiError } from '@/lib/api'
+import { ANALYTICS_EVENTS, trackEvent } from '@/lib/analytics'
 
 function VerifyEmailContent() {
   const t = useTranslations('auth')
@@ -29,6 +30,7 @@ function VerifyEmailContent() {
         .verifyEmail(token, email)
         .then(() => {
           setVerified(true)
+          trackEvent(ANALYTICS_EVENTS.verifyEmail)
           toast.success(t('verifyEmailDone'))
         })
         .catch((err) => toast.error(getApiError(err)))

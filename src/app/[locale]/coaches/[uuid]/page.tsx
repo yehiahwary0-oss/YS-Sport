@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { MapPin, BadgeCheck, Heart, Calendar } from 'lucide-react'
@@ -19,6 +19,7 @@ import { useCoachProfile, useCoachPackages, useCoachReviews } from '@/hooks/useM
 import { useToggleFavorite } from '@/hooks/useFavorites'
 import { useAuthStore } from '@/store/auth.store'
 import { formatRating, cn } from '@/lib/utils'
+import { ANALYTICS_EVENTS, trackEvent } from '@/lib/analytics'
 import type { PublicCoachPackage } from '@/types'
 import { MessageSquare } from 'lucide-react'
 
@@ -34,6 +35,12 @@ export default function CoachDetailPage() {
 
   const [requestModalOpen, setRequestModalOpen] = useState(false)
   const [preselected, setPreselected] = useState<PublicCoachPackage | null>(null)
+
+  useEffect(() => {
+    if (coach) {
+      trackEvent(ANALYTICS_EVENTS.coachProfileView)
+    }
+  }, [coach])
 
   if (isLoading) {
     return (

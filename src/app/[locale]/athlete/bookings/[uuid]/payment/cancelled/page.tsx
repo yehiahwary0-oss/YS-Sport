@@ -8,6 +8,7 @@ import { Ban } from 'lucide-react'
 
 import { Button } from '@/components/ui/Button'
 import { useConfirmPaymentCancelled } from '@/hooks/usePayments'
+import { ANALYTICS_EVENTS, trackEvent } from '@/lib/analytics'
 
 export default function PaymentCancelledPage() {
   const { uuid } = useParams<{ uuid: string }>()
@@ -17,6 +18,7 @@ export default function PaymentCancelledPage() {
   const cancelledRef = useRef(false)
 
   useEffect(() => {
+    trackEvent(ANALYTICS_EVENTS.paymentFailed)
     if (cancelledRef.current) return
     cancelledRef.current = true
     confirmCancelled.mutate(uuid)

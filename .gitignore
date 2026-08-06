@@ -6,6 +6,10 @@
 # testing
 /coverage
 
+# e2e run artifacts
+e2e/mock-server.log
+e2e/run-output.txt
+
 # next.js
 /.next/
 /out/

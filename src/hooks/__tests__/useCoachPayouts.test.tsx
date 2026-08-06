@@ -118,6 +118,18 @@ describe('useCoachEarnings', () => {
     expect(payoutService.listEarnings).toHaveBeenCalledWith('paid')
     expect(result.current.data?.meta.total).toBe(1)
   })
+
+  it('falls back to the all filter when no status is given', async () => {
+    vi.mocked(payoutService.listEarnings).mockResolvedValue({
+      data: [],
+      meta: { current_page: 1, per_page: 20, total: 0, last_page: 1 },
+    })
+
+    const { result } = renderHook(() => useCoachEarnings(), { wrapper: createWrapper() })
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true))
+    expect(payoutService.listEarnings).toHaveBeenCalledWith(undefined)
+  })
 })
 
 describe('useCoachEarningsSummary', () => {

@@ -23,6 +23,7 @@ import { useFindBookingConversation } from '@/hooks/useConversation'
 import { useCreateCheckout, useConfirmPaymentSuccess, useMarkManualPaid, useValidatePromoCode } from '@/hooks/usePayments'
 import { reviewService } from '@/services/review.service'
 import { getApiError } from '@/lib/api'
+import { ANALYTICS_EVENTS, trackEvent } from '@/lib/analytics'
 import { formatPrice, formatDateTime } from '@/lib/utils'
 import toast from 'react-hot-toast'
 import { useQueryClient } from '@tanstack/react-query'
@@ -73,6 +74,7 @@ export default function AthleteBookingDetailPage() {
     setSubmittingReview(true)
     try {
       await reviewService.submit({ booking_uuid: booking.uuid, rating, comment: comment || undefined })
+      trackEvent(ANALYTICS_EVENTS.reviewSubmitted)
       toast.success(t('reviewSubmitted'))
       setReviewModalOpen(false)
       queryClient.invalidateQueries({ queryKey: ['athlete', 'bookings', uuid] })
@@ -153,6 +155,7 @@ export default function AthleteBookingDetailPage() {
                       },
                       {
                         onSuccess: (session) => {
+                          trackEvent(ANALYTICS_EVENTS.paymentInitiated)
                           window.open(session.checkout_url, '_blank')
                         },
                       }

@@ -1,0 +1,31 @@
+{
+  "ci": {
+    "collect": {
+      "url": [
+        "http://localhost:3000/en/marketplace",
+        "http://localhost:3000/ar/marketplace",
+        "http://localhost:3000/en/auth/login"
+      ],
+      "numberOfRuns": 1,
+      "settings": {
+        "chromeFlags": "--no-sandbox --headless",
+        "throttlingMethod": "simulate"
+      }
+    },
+    "assert": {
+      "assertions": {
+        "categories:performance": ["warn", { "minScore": 0.9 }],
+        "categories:accessibility": ["warn", { "minScore": 0.9 }],
+        "categories:best-practices": ["warn", { "minScore": 0.9 }],
+        "categories:seo": ["warn", { "minScore": 0.9 }],
+        "lcp": ["warn", { "maxNumericValue": 2500 }],
+        "fcp": ["warn", { "maxNumericValue": 1800 }],
+        "cls": ["warn", { "maxNumericValue": 0.1 }]
+      }
+    },
+    "upload": {
+      "target": "filesystem",
+      "outputDir": "lhci-reports"
+    }
+  }
+}

@@ -1,4 +1,5 @@
 import { api } from '@/lib/api'
+import { toPaginated } from '@/lib/pagination'
 import type { ServiceRequest, PaginatedResponse } from '@/types'
 
 export const serviceRequestService = {
@@ -15,7 +16,7 @@ export const serviceRequestService = {
 
   async listAthlete(status?: string, page = 1): Promise<PaginatedResponse<ServiceRequest>> {
     const { data } = await api.get('/athlete/service-requests', { params: { status, page } })
-    return data as PaginatedResponse<ServiceRequest>
+    return toPaginated<ServiceRequest>(data.data)
   },
 
   async getAthlete(uuid: string): Promise<ServiceRequest> {
@@ -31,7 +32,7 @@ export const serviceRequestService = {
   // Coach
   async listCoach(status?: string, page = 1): Promise<PaginatedResponse<ServiceRequest>> {
     const { data } = await api.get('/coach/service-requests', { params: { status, page } })
-    return data as PaginatedResponse<ServiceRequest>
+    return toPaginated<ServiceRequest>(data.data)
   },
 
   async getCoach(uuid: string): Promise<ServiceRequest> {

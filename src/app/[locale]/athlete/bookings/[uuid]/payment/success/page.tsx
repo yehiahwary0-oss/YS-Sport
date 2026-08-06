@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/Button'
 import { useAthleteBookingDetail } from '@/hooks/useBookings'
 import { useConfirmPaymentSuccess } from '@/hooks/usePayments'
 import { useBookingPayment } from '@/hooks/useBookingPayment'
+import { ANALYTICS_EVENTS, trackEvent } from '@/lib/analytics'
 import { formatPrice } from '@/lib/utils'
 
 export default function PaymentSuccessPage() {
@@ -37,6 +38,12 @@ export default function PaymentSuccessPage() {
 
   const payment = confirmPayment.data ?? poll.data?.payment
   const settled = finalStatus && finalStatus !== 'pending'
+
+  useEffect(() => {
+    if (settled) {
+      trackEvent(ANALYTICS_EVENTS.paymentSuccess)
+    }
+  }, [settled])
 
   if (confirmPayment.isPending || confirmPayment.isIdle) {
     return (

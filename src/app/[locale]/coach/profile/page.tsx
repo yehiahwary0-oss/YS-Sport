@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useTranslations } from 'next-intl'
-import { Camera, BadgeCheck, Clock, Eye, EyeOff, FileText, Upload } from 'lucide-react'
+import { Camera, BadgeCheck, Clock, Eye, EyeOff, FileText, Upload, XCircle } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { Avatar } from '@/components/ui/Avatar'
 import { Input } from '@/components/ui/Input'
@@ -142,6 +142,18 @@ export default function CoachProfilePage() {
           ))}
         </div>
       </div>
+
+      {/* Rejection feedback */}
+      {profile.verification_status === 'rejected' && profile.rejection_reason && (
+        <div className="card border-red-500/30 p-4">
+          <div className="flex items-center gap-2">
+            <XCircle className="h-4 w-4 text-red-400" />
+            <h3 className="text-sm font-semibold text-red-400">{t('rejectionReason')}</h3>
+          </div>
+          <p className="mt-2 text-sm text-zinc-300">{profile.rejection_reason}</p>
+          <p className="mt-2 text-xs text-zinc-500">{t('reapplyPrompt')}</p>
+        </div>
+      )}
 
       {/* Certificate upload */}
       <div className="card p-6">

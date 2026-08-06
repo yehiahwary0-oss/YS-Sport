@@ -1,5 +1,6 @@
 import axios, { AxiosError, type InternalAxiosRequestConfig } from 'axios'
 import type { ApiError } from '@/types'
+import { AUTH_EXPIRED_EVENT } from '@/lib/session-events'
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api/v1'
 
@@ -88,8 +89,12 @@ api.interceptors.response.use(
         // → reload again. Dispatching a custom event lets the auth store
         // (already mounted, already knows it failed) handle the redirect
         // exactly once via Next.js's client-side router instead.
-        if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/auth/login')) {
-          window.dispatchEvent(new Event('auth:logout'))
+        if (typeof window !== 'undefined') {
+          const { pathname } = window.location
+          const isLoginPage = pathname === '/auth/login' || pathname.endsWith('/auth/login')
+          if (!isLoginPage) {
+            window.dispatchEvent(new Event(AUTH_EXPIRED_EVENT))
+          }
         }
         return Promise.reject(refreshError)
       } finally {

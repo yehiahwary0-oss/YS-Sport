@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import { serviceRequestService } from '@/services/service-request.service'
 import { getApiError } from '@/lib/api'
+import { ANALYTICS_EVENTS, trackEvent } from '@/lib/analytics'
 
 export function useCreateServiceRequest() {
   const queryClient = useQueryClient()
@@ -10,6 +11,7 @@ export function useCreateServiceRequest() {
     mutationFn: (payload: { coach_uuid: string; package_uuid: string; message?: string }) =>
       serviceRequestService.create(payload),
     onSuccess: () => {
+      trackEvent(ANALYTICS_EVENTS.serviceRequestSent)
       toast.success('Request sent! The coach will respond within 48 hours.')
       queryClient.invalidateQueries({ queryKey: ['athlete', 'service-requests'] })
     },
@@ -44,6 +46,7 @@ export function useAcceptServiceRequest() {
   return useMutation({
     mutationFn: (uuid: string) => serviceRequestService.accept(uuid),
     onSuccess: () => {
+      trackEvent(ANALYTICS_EVENTS.bookingCreated)
       toast.success('Request accepted — booking created!')
       queryClient.invalidateQueries({ queryKey: ['coach', 'service-requests'] })
       queryClient.invalidateQueries({ queryKey: ['coach', 'bookings'] })

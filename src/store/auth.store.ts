@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import type { AuthUser } from '@/types'
 import { authService } from '@/services/auth.service'
 import { tokenStore } from '@/lib/api'
+import { ANALYTICS_EVENTS, trackEvent } from '@/lib/analytics'
 
 interface AuthState {
   user: AuthUser | null
@@ -24,6 +25,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       const { user } = await authService.login({ email, password })
       set({ user, isLoading: false, isInitialized: true })
+      trackEvent(ANALYTICS_EVENTS.login)
       return user
     } catch (err) {
       set({ isLoading: false })
