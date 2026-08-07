@@ -80,8 +80,8 @@
 
 | Item | Status |
 | --- | --- |
-| All changes pushed to GitHub (both repos) | ✅ `2dc094a` (web) / `c6d2097` (api) on `origin/main`, verified via `git ls-remote` |
-| GitHub Actions green on main | ⚠️ **BLOCKED** — 0 runs on both repos; workflow active but never triggered |
+| All changes pushed to GitHub (both repos) | ✅ `31674e8` (web) / `a29c07c` (api) on `origin/main`, verified via `git ls-remote` |
+| GitHub Actions green on main | ⚠️ **BLOCKED — GitHub Actions workflows active but 0 runs. Likely repo settings issue — requires owner to enable Actions in Settings → Actions → General.** (Trigger pushes `809faea`/`31674e8` web + `a29c07c` api pushed; API still reports `total_count=0` after 5 min on both repos) |
 | FEATURE_REVIEW.md created with complete review | ✅ |
 | Every feature categorized (✅/⚠️/❌/📝) | ✅ |
 | No secrets in commits | ✅ (only `.env.local.example` / `.env.example` templates committed; no keys/pems) |
